@@ -1,17 +1,28 @@
 # 口罩人脸识别(Mask-face-recognition)
-##### 原始github:https://github.com/HouchangX-AI/Mask-face-recognition
-### 由来
+
+> FaceNet的github参考：https://github.com/liorshk/facenet_pytorch/blob/master/train_triplet.py <br>
+> 本项目github:https://github.com/HouchangX-AI/Mask-face-recognition<br>
+> 本项目优化版github:https://github.com/ZouJiu1/Mask_face_recognitionZ<br>
+
+## 由来
+
 这个项目主要是实现人脸特征向量的提取，关注点是实现[CBAM](https://arxiv.org/abs/1807.06521) 模块以及[face_attention](https://arxiv.org/abs/1711.07246) 模块，让网络集中关注不戴口罩的人脸区域并提升识别率<br>
-### 环境
+
+## 环境
+
 CUDA Version: 10.2<br>
 CUDNN Version：7.6.5<br>
 Pytorch：1.6.0<br>
-### 数据
-正常人脸训练数据：VGGFace2，链接：http://www.robots.ox.ac.uk/~vgg/data/vgg_face2/ <br>
-正常人脸测试数据：LFW(Labeled Faces in the Wild)，链接：http://vis-www.cs.umass.edu/lfw/<br>
-LFW数据集下载的链接是[https://share.weiyun.com/qHg5TcPP](https://share.weiyun.com/qHg5TcPP) ，放入Datasets文件夹<br> 
-口罩人脸数据：Real-World-Masked-Face-Dataset，链接：https://github.com/X-zhangyang/Real-World-Masked-Face-Dataset，项目中暂时没用到可以不管<br>   
-### 模型
+
+## 数据
+
+1. 正常人脸训练数据：VGGFace2，链接：http://www.robots.ox.ac.uk/~vgg/data/vgg_face2/ （这个链接经常打不开，有需要的同学可以直接在百度搜VGGFace2数据下载，例如‘https://hyper.ai/datasets/5711’），本项目主要使用vggface2_train.tar.gz文件。<br>
+2. 正常人脸测试数据：LFW(Labeled Faces in the Wild)，链接：http://vis-www.cs.umass.edu/lfw/<br>
+3. LFW数据集下载的链接是[https://share.weiyun.com/qHg5TcPP](https://share.weiyun.com/qHg5TcPP) ，放入Datasets文件夹<br>
+4. 口罩人脸数据：Real-World-Masked-Face-Dataset，链接：https://github.com/X-zhangyang/Real-World-Masked-Face-Dataset，项目中暂时没用到可以不管<br>
+
+## 模型
+
 以标准人脸识别模型[FaceNet](https://arxiv.org/abs/1503.03832) 为主线，添加fpn_face_attention结构，增加CBAM模块，使其能更好的聚焦于人脸上半部，没带口罩的区域<br>
 
 有几个版本的face_attention提取层，表格里面的FA_*，代表face_attention版本号，V6是基准网络只有Resnet34没加任何其他网络结构，输入只有戴口罩人脸<br>
@@ -25,8 +36,9 @@ AUC的结果是运行validation_LFW.py文件得到的
 | V6 | Resnet34 |  |  |  |  | ✔ | 不输入 | 0.835 | 0.922 |
 | V8 | Resnet34 |  |  |  | ✔ | ✔ | mask图片 | 0.855 | 0.926 |
 | V9 | Resnet34 | ✔ |  | ✔ |  | ✔ | mask图片 | 0.832 | 0.918 |
+| V9复现 | Resnet34 | ✔ |  | ✔ |  | ✔ | mask图片 | 0.859 | 0.915 |
 
-### 训练模型下载
+## 权重文件下载
 下载好的模型放到Model_training_checkpoints文件夹里面<br>
 V1对应网络模型：[https://share.weiyun.com/rwxg7wjK](https://share.weiyun.com/rwxg7wjK) <br>
 V2对应网络模型：[https://share.weiyun.com/k2hbXlUf](https://share.weiyun.com/k2hbXlUf) <br>
@@ -34,21 +46,23 @@ V3对应网络模型：[https://share.weiyun.com/dlB3la3P](https://share.weiyun.
 V6对应网络模型：[https://share.weiyun.com/oahbBY9q](https://share.weiyun.com/oahbBY9q) <br>
 V8对应网络模型：[https://share.weiyun.com/7mHXOuxS](https://share.weiyun.com/7mHXOuxS) <br>
 V9对应网络模型：[https://share.weiyun.com/0dGsAUtO](https://share.weiyun.com/0dGsAUtO) <br>
+**V9复现**网络模型：https://pan.baidu.com/s/16hrTUpj23b0NsInZPMfDNQ  密码: mc20<br>
 
-### 下载相应数据
+## 下载相应数据
 生成一个Datasets文件夹，把VGGFace2的原始数据(VGGFace2_train文件)、LFW原始数据(lfw_funneled)、LFW配对文件(LFW_pairs.txt)，都放到Datasets文件夹，并解压，VGGface是用做训练集的，LFW是用做测试集的<br>
 
-### 清洗数据过程 非必需
+## 清洗数据过程 非必需
 清洗相关小图，原始数据质量不过关，可以把尺寸太小的图删了：<br>
 使用Data_preprocessing/kill_img.py文件，在preprocess函数中设定图像尺寸大小，现在可能用的是250，也就是只保留边长250以上的图片，而后将data_path指定到VGGFace2_train文件夹，这里是原位操作，所以就直接在这个文件夹里删除所有小图了，如果不想这样的话可以先备份一遍数据，然后运行了就会显示删了多少图、保留了多少图、总图数是多少。<br>
 
-##### 文件名有_notmask后缀的是不戴口罩的代码，文件名有_mask后缀的是戴口罩的代码
-### 不戴口罩数据预处理
+*注：文件名有_notmask后缀的是不戴口罩的代码，文件名有_mask后缀的是戴口罩的代码*
+
+## 不戴口罩数据预处理
 不戴口罩切人脸/对齐/生成mask(数据预处理，用OpenCV把图像中的人脸切下来，做2轴对齐，在根据68人脸特征点生成Attention模块用的mask图)：<br>
 使用Data_preprocessing/Image_processing.py，设置notmasked=True；masked=False其中的‘shape_predictor_68_face_landmarks.dat’[官方下载地址](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2) ，就是OpenCV库的68人脸特征点预测模型，然后定义输入data路径就可以运行了。处理VGGface2大约要一天时间<br>
-如果想加快生成速度，可以分片生成，使用命令行也可以写到一个shell脚本里面
+如果想分片生成，使用命令行也可以写到一个shell脚本里面
 ```bash
-示例：分成10份生成，总的生成时间会缩减为之前的十分之一
+示例：分成10份生成，每一个片段的时间是总时间的十分之一（减少数据总量会影响模型精度）。
 cd /Data_preprocessing 
 python Image_processing.py -s1 0 -s2 1 -sa 10
 python Image_processing.py -s1 1 -s2 2 -sa 10
@@ -148,16 +162,10 @@ V9网络戴口罩测试的结果 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp
 ### 使用LFW数据集验证测试集AUC结果
 测试结果包含AUC、Accuray和最佳距离指标等，测试集相同但输入网络有两种图片呢，一种是戴口罩的LFW人脸图片，一种是不戴口罩的LFW人脸图片<br>
 
-```bash
+```python
 python validation_LFW.py
 ```
-### 非LFW数据集生成LFW格式的pairs.txt文件
-```bash
-python create_pairs.py
-```
-### 使用生成的paris.txt文件验证测试非LFW数据集
-```bash
-python validation_NOTLFW.py
+
 ```
 License
 ~~~~~~~
